@@ -7,13 +7,19 @@ local.properties
 
 # Log/OS Files
 *.log
+.DS_Store
+Thumbs.db
 
 # Android Studio generated files and folders
 captures/
 .externalNativeBuild/
 .cxx/
 *.apk
+*.aab
 output.json
+
+# Kotlin
+.kotlin/
 
 # IntelliJ
 *.iml
