@@ -71,7 +71,8 @@ General rules:
 - [FUTURE] Combine search with an archive view (idea, depends on archive).
 
 ### 2.5 Account, sync and settings
-- [MVP] Firebase Authentication with email verification.
+- [MVP] Firebase Authentication with email/password sign-in and email verification.
+- [MVP] Google sign-in. Google accounts do not need the email verification step.
 - [MVP] Password reset.
 - [MVP] Account deletion: the user can delete their account and all their data from Firebase.
 - [MVP] Multi-device sync of all data, offline-first. Firestore provides most of this; images in Firebase Storage need their own loading/caching design.
@@ -114,7 +115,7 @@ General rules:
 | UI | Jetpack Compose, Material Design 3 |
 | Architecture | MVVM |
 | Dependency injection | Koin |
-| Auth | Firebase Authentication (email verification, password reset) |
+| Auth | Firebase Authentication (email/password with email verification, Google sign-in, password reset) |
 | Database | Firebase Firestore (offline-first, multi-device sync). **Revisit after the spec is complete and before implementation starts** (is a document store the right fit vs a DB-style product?) |
 | File storage | Firebase Storage (profile pictures encrypted client-side) |
 | Local DB | None (no Room) |
@@ -237,3 +238,4 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 - Conflict rule: when a skill contradicts the spec, the agent asks Or to decide instead of assuming either side wins.
 - Major update: features rewritten as a tagged list (MVP / FUTURE / UNDECIDED / RESEARCH) with many new features; removed owner location; added speed and safety priorities, design principles, disclaimer and regulation notes; images uploaded to Firebase; REST APIs wanted eventually; password reset and account deletion added; rules.md conflicts require asking Or; renamed "dose history" to "intake log" and "daily dosage enforcement" to "dose warnings".
 - MVP vs future split completed for all features. Renamed "intake log" to "History". Optional birth date added (MVP); weight left open; opened/expiry dates, archive, priority, favorites, categories and dose warnings moved to future; app lock set to MVP low priority; client-side encryption of all data added as future research.
+- Added Google sign-in as a second sign-in method (MVP), alongside email/password.
