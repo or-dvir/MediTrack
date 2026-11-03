@@ -164,6 +164,7 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 - Within reason: not everything flashy or multicolored, and no composable used just for variety. Simple is sometimes better than flashy. The agent designing the UI judges this case by case, with Or.
 - Animations are short. Nothing jumps around, and the user never waits on long animations.
 - Fewest possible taps for frequent actions, especially logging an item as taken.
+- Field-level errors use one shared standard Android text-field error treatment across the app (the shared `TextBoxError` style/component), including the Material error color. Screens must not invent separate error cards or different spacing/colors for the same text-field error; exact component implementation is an implementation detail.
 - **Every text field in the whole app** (not only auth) must have the correct keyboard type, autofill/content-type hint, IME action, and capitalization/autocorrect settings, so password managers and keyboards work properly.
 
 ---
@@ -221,7 +222,7 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 | Priority/highlight design | Open |
 | Official APIs and barcode scanning: which sources exist | Research needed |
 | Regulation (medical-device rules, also for GitHub-only distribution); link-to-official-source idea | Research needed |
-| UI screens and navigation flow | In progress: screens are designed one at a time (see Section 10). Login is decided; register, verification and forgot password next, then the flow between the auth screens, then the disclaimer screen last |
+| UI screens and navigation flow | In progress: screens are designed one at a time (see Section 10). Login is decided; registration is in progress elsewhere; verification direction is selected; forgot password is in design review. Discuss auth transitions after the individual auth screens; disclaimer last. |
 | Flow between the auth screens | To discuss after the individual auth screens are done |
 | Color palette, app icon, tagline and other placeholder texts | Placeholders for now (Material 3 default colors); decide before release |
 | Placeholder resolution | Resolve all design placeholder text and assets before implementation starts. Runtime values (for example, the email address passed to verification) are not unresolved design placeholders. |
@@ -302,10 +303,11 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 - The manual primary action reloads the current Firebase user and then reads the refreshed `isEmailVerified` value. Firebase remains the source of truth; do not persist a duplicate app-level flag.
 - If verified, continue to the main app and remove the auth flow from the back stack. A brief success indicator in the primary button (for example, a checkmark) is a possible treatment; whether to show it and for how long remains open.
 - If not verified, keep the user on this screen and show a clear message nudging them to check the email and try again.
+- If the Firebase reload/check itself fails, show a meaningful Firebase error state, distinct from the normal "not verified yet" result.
 - Resend is disabled during a 60-second cooldown after the initial verification email and after every successful resend. The cooldown must be enforced in the resend logic as well as in the UI, so other triggers cannot bypass it. A Firebase `TOO_MANY_REQUESTS` response must show a meaningful message and disable the affected action with a 60-second countdown; enforce the same guard in logic, not only in the UI.
 - After the cooldown ends, enable resend again. The inline link shows the remaining time while disabled. The sent-email count remains hidden until the first resend.
 - Automatic verification refresh on app return is under consideration (Section 9). If adopted, check once on resume rather than continuously polling, and avoid duplicate concurrent checks. It must not send a verification email.
-- Preview states should include initial cooldown, resend available, checking/loading, unverified response, rate-limit error/cooldown, and verified success.
+- Preview states should include initial cooldown, resend available, checking/loading, unverified response, Firebase check error, rate-limit error/cooldown, and verified success.
 
 **Visual design options**
 - **Implement option 3 first: Two-step guide.** Left-aligned "Almost there" heading, a compact card with the runtime email address, and two numbered instructions: open the email and follow the link, then return to the app. Place the filled "I've verified my email" action below. Show resend as an inline text link with the countdown. Keep this as the initial implementation direction.
@@ -316,6 +318,27 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 **Design reference:** Option 3 is the initial direction; option 1 is the backup.
 
 ![Email verification screen designs: option 3 first, option 1 backup](design/email-verification-selected-options.svg)
+
+### 10.4 Forgot-password screen (placeholder design; details in progress)
+**Elements**
+- Top app bar with a back button, matching the shared auth-flow treatment.
+- Email field. If the Login screen's email field was filled when the user opened Forgot password, prefill it; otherwise start blank. The field remains editable and follows the text-field settings in Section 5.
+- Primary action: "Send reset link," using the same filled pill style as the other auth screens.
+- After Firebase accepts the request, show a confirmation with the runtime email address and ask the user to check their inbox or spam folder. Exact copy is a placeholder.
+- Show a text-style "Back to login" action consistently in each screen state. Its final styling and placement must be discussed before implementation.
+- Resend is offered as an inline text action with a 60-second countdown. A sent-email count is not currently part of this screen.
+- Keep the same small email icon in the same position in every state. The sent state may overlay a success checkmark; an email-related error may overlay an X. Icon choice and styling are placeholders.
+
+**Behavior and errors**
+- Send the reset email to the entered address. Once Firebase accepts the send request, remain on the confirmation state and show "Back to login" immediately; do not automatically navigate away or imply the password has already been changed. The user chooses when to return to Login after completing the reset.
+- A 60-second resend cooldown starts after the initial email and after every successful resend. Enforce it in the resend logic as well as the UI. A Firebase `TOO_MANY_REQUESTS` response shows a meaningful message and a 60-second countdown on the affected action.
+- Show actionable email-related Firebase errors beside the email field using the shared `TextBoxError` treatment from Section 5. Keep the entered address. Request-level failures (for example, offline) get a meaningful screen message. Exact messages are placeholders and should reflect the configured email-enumeration behavior (Section 0).
+- Preview states should include blank email, prefilled email, sending/loading, email-related error, request-level error, sent confirmation with cooldown, and resend available.
+
+**Visual design**
+- The current three-state design (email entry, link sent, email-related error) is a placeholder for discussion. The image, error copy, text-style "Back to login" action, and palette are not final and must be reviewed with the other auth screens before implementation (Section 9).
+
+![Forgot-password screen placeholder states](design/forgot-password-screen.svg)
 
 ---
 
@@ -331,3 +354,4 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 - Screen design started with the authentication flow. Added Section 10 (screens): general auth flow rules, derived auth state and login screen decisions. Added Firebase project setup prerequisites to Section 0, verified-email requirement for security rules, app lock offer after first login, and the rule that all text fields need correct input settings. Change Log renumbered to Section 11.
 - Login screen finalized (Section 10.2): row header with tagline, bordered fields, pill buttons, Register line below the Google button; two optional variants recorded. Added open decisions for colors, app icon, placeholder texts and the variants.
 - Email verification screen design direction recorded (Section 10.3): implement option 3 first, retain option 1 as backup; add a pre-implementation review to align shared UI styling across all screens.
+- Forgot-password screen placeholder recorded (Section 10.4): conditional email prefill, reset confirmation and resend cooldown, shared text-field error treatment, and three discussion states.
