@@ -18,6 +18,12 @@ Before any feature work:
 5. Things the agent cannot do itself (for example, Firebase projects and their `google-services.json` files) must be reported to Or as prerequisites; never commit `google-services.json`.
 6. Verify the result builds with `./gradlew assembleDebug`.
 
+### Firebase project setup (prerequisites to report to Or)
+No Firebase project exists yet. When Or creates the Firebase projects (dev and prod, see Section 4), remind Or of these settings. The agent cannot do them itself.
+- **Email enumeration protection: OFF** (Firebase console, Authentication, Settings, User actions). It is on by default for projects created on or after September 15, 2023. Turning it off gives specific sign-in errors (for example "no account with this email" vs "wrong password"). Trade-off accepted by Or: the sign-in endpoints can reveal whether an email is registered.
+- **One account per email address: ON.** Believed to be under Authentication, Settings, User account linking. The agent verifies the exact location in the current docs.
+- **Firestore security rules must require a verified email** (see Section 7.1).
+
 ---
 
 ## 1. Overview and Priorities
@@ -71,14 +77,14 @@ General rules:
 - [FUTURE] Combine search with an archive view (idea, depends on archive).
 
 ### 2.5 Account, sync and settings
-- [MVP] Firebase Authentication with email/password sign-in and email verification.
+- [MVP] Firebase Authentication with email/password sign-in and email verification. The user sees data only when signed in **and** verified (see Section 10.1).
 - [MVP] Google sign-in. Google accounts do not need the email verification step.
 - [MVP] Password reset.
 - [MVP] Account deletion: the user can delete their account and all their data from Firebase.
 - [MVP] Multi-device sync of all data, offline-first. Firestore provides most of this; images in Firebase Storage need their own loading/caching design.
 - [MVP] Disclaimer shown to the user, who must accept it (see 2.9).
 - [MVP] Theme selection: system default, always light, always dark.
-- [MVP, low priority] App lock (biometric), toggled in settings. If the basic version turns out not to be easy, move it to future.
+- [MVP, low priority] App lock (biometric), toggled in settings. Offered to the user after their first login, with a "don't show again" option; always toggleable in settings. Designed together with the settings screen, not the auth screens. If the basic version turns out not to be easy, move it to future.
 - [FUTURE] [RESEARCH] Client-side encryption of all data (possibly optional). Note: Firestore already encrypts data at rest and in transit; this would be client-side encryption.
 
 ### 2.6 Images
@@ -115,7 +121,7 @@ General rules:
 | UI | Jetpack Compose, Material Design 3 |
 | Architecture | MVVM |
 | Dependency injection | Koin |
-| Auth | Firebase Authentication (email/password with email verification, Google sign-in, password reset) |
+| Auth | Firebase Authentication (email/password with email verification, Google sign-in, password reset). Google sign-in uses Google's currently recommended method; the agent verifies it in the current docs (the old Google Sign-In library is believed to be deprecated). |
 | Database | Firebase Firestore (offline-first, multi-device sync). **Revisit after the spec is complete and before implementation starts** (is a document store the right fit vs a DB-style product?) |
 | File storage | Firebase Storage (profile pictures encrypted client-side) |
 | Local DB | None (no Room) |
@@ -158,6 +164,7 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 - Within reason: not everything flashy or multicolored, and no composable used just for variety. Simple is sometimes better than flashy. The agent designing the UI judges this case by case, with Or.
 - Animations are short. Nothing jumps around, and the user never waits on long animations.
 - Fewest possible taps for frequent actions, especially logging an item as taken.
+- **Every text field in the whole app** (not only auth) must have the correct keyboard type, autofill/content-type hint, IME action, and capitalization/autocorrect settings, so password managers and keyboards work properly.
 
 ---
 
@@ -178,7 +185,7 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 - How multi-condition dosage is stored (see 2.2).
 - Global search across all profiles of the account (client-side over cached data is the working assumption; Firestore has no full-text search).
 - MVP fields to cover: active/inactive state, optional profile birth date, default-profile marker. Future features (archive, opened/expiry dates, weight, categories) must not be stored yet, but the model should not make them hard to add.
-- Security rules.
+- Security rules. They must require a verified email, so unverified users are blocked on the server side too.
 
 ### 7.2 Image encryption
 `OPEN` - to decide:
@@ -214,8 +221,9 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 | Priority/highlight design | Open |
 | Official APIs and barcode scanning: which sources exist | Research needed |
 | Regulation (medical-device rules, also for GitHub-only distribution); link-to-official-source idea | Research needed |
-| UI screens and navigation flow | Open |
-| Auth flow and Firestore security rules | Open |
+| UI screens and navigation flow | In progress: screens are designed one at a time (see Section 10). Login is decided; register, verification and forgot password next, then the flow between the auth screens, then the disclaimer screen last |
+| Flow between the auth screens | To discuss after the individual auth screens are done |
+| Auth flow and Firestore security rules | Auth flow in progress (Section 10.1); security rules open |
 | Testing approach | Open |
 | Image loading library | Open |
 | Adopt actual Material 3 Expressive APIs | Open |
@@ -230,7 +238,49 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 
 ---
 
-## 10. Change Log
+## 10. Screens
+
+Screens are designed one at a time. Each screen's decisions are recorded here once the screen is final. The disclaimer screen is designed last.
+
+### 10.1 Authentication flow (general)
+- **Own back stack.** All auth screens form a separate flow. Back works between them (for example, verification back to login). Once the user is signed in and verified, no auth screen stays in the back stack or history and the user cannot navigate back to it. The auth flow is shown again only after logout (manual or automatic).
+- **App-level auth state, derived from Firebase (not stored separately):** signed out (show login), signed in but not verified (show verification), ready = signed in **and** verified (show the app). Google accounts count as verified. Firebase's "signed in" alone is not enough, because Firebase signs the user in right after registration. The condition for showing the verification screen is "not verified", not "not logged in" or "not registered".
+- **Routing is decided only at app launch and after the result of a sign-in attempt**, not continuously. Otherwise a back press from verification to login would bounce straight back to verification.
+- **Back from verification returns to login** (approved by Or). Firebase may stay signed in; the app derives the next screen itself.
+- Register, forgot password and verification screens have a back button in the top app bar. Login is the root of the flow and has none.
+- Firebase caches the user's verified flag, so the app has to reload the user to see a change. How the verification screen handles this is decided when that screen is designed.
+- **Agent must verify, not assume:** (1) calling email/password sign-in while Firebase already has a signed-in user is believed to just replace the session with no special error. This is not confirmed in the docs. (2) Behavior of Google sign-in with an email that already has an email/password account (with "one account per email" on, expect an account-exists-with-different-credential error or automatic linking). Test on the real project and handle it.
+
+### 10.2 Login screen (decided)
+**Elements**
+- App name/logo at the top, kept small (no big hero illustration, so it does not eat space when the keyboard is open). The name is temporary, so it must be easy to change (string resource).
+- Email field and password field (with show/hide toggle).
+- Login button.
+- "Forgot password?" link.
+- "or" divider, then "Continue with Google" (follow Google's button branding rules).
+- "Don't have an account? Register" link.
+
+**Text field settings** (applies to all fields, see Section 5): email field gets the email keyboard, email autofill hint, Next IME action, no autocorrect, no auto-capitalization, and trimmed input. Password field gets the password autofill hint and a Done IME action that submits the form.
+
+**Behavior**
+- Correct credentials with an unverified email go to the verification screen, not an error.
+- Loading: spinner inside the login button. All fields and both sign-in buttons are disabled while a request runs, so a double tap cannot send two requests.
+- Layout: the form scrolls and stays visible when the keyboard opens; it handles large font sizes; on tablets and landscape the form has a maximum width.
+- Same email with both methods: honor the user's choice. No "did you mean Google?" popup. One account per email (see Section 0). Show a clear message if a conflict still happens.
+- Google sign-in user cancel: no error message shown (proposed, not yet confirmed).
+
+**Errors**
+- Be as specific as possible: for example no account with this email, wrong password, offline, too many attempts, disabled account. Specific errors depend on email enumeration protection being off (see Section 0).
+- Where the reason cannot be told apart, show a hint instead of a vague message (for example, suggest registering if the user may not have an account).
+- Exact texts are decided with Or during design.
+
+**Previews:** content, loading, and each error state (see Section 4).
+
+**Visual design:** pending.
+
+---
+
+## 11. Change Log
 
 - Initial draft created from planning decisions so far.
 - Spec moved into the MediTrack GitHub repo at docs/SPEC.md (public). The repo copy is the source of truth.
@@ -239,3 +289,4 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 - Major update: features rewritten as a tagged list (MVP / FUTURE / UNDECIDED / RESEARCH) with many new features; removed owner location; added speed and safety priorities, design principles, disclaimer and regulation notes; images uploaded to Firebase; REST APIs wanted eventually; password reset and account deletion added; rules.md conflicts require asking Or; renamed "dose history" to "intake log" and "daily dosage enforcement" to "dose warnings".
 - MVP vs future split completed for all features. Renamed "intake log" to "History". Optional birth date added (MVP); weight left open; opened/expiry dates, archive, priority, favorites, categories and dose warnings moved to future; app lock set to MVP low priority; client-side encryption of all data added as future research.
 - Added Google sign-in as a second sign-in method (MVP), alongside email/password.
+- Screen design started with the authentication flow. Added Section 10 (screens): general auth flow rules, derived auth state and login screen decisions. Added Firebase project setup prerequisites to Section 0, verified-email requirement for security rules, app lock offer after first login, and the rule that all text fields need correct input settings. Change Log renumbered to Section 11.
