@@ -223,6 +223,8 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 | Regulation (medical-device rules, also for GitHub-only distribution); link-to-official-source idea | Research needed |
 | UI screens and navigation flow | In progress: screens are designed one at a time (see Section 10). Login is decided; register, verification and forgot password next, then the flow between the auth screens, then the disclaimer screen last |
 | Flow between the auth screens | To discuss after the individual auth screens are done |
+| Color palette, app icon, tagline and other placeholder texts | Placeholders for now (Material 3 default colors); decide before release |
+| Login screen variants (stacked centered header, Register on the forgot-password row) | Option 2 is implemented; decide on a real device whether to switch (Section 10.2) |
 | Auth flow and Firestore security rules | Auth flow in progress (Section 10.1); security rules open |
 | Testing approach | Open |
 | Image loading library | Open |
@@ -253,19 +255,19 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 
 ### 10.2 Login screen (decided)
 **Elements**
-- App name/logo at the top, kept small (no big hero illustration, so it does not eat space when the keyboard is open). The name is temporary, so it must be easy to change (string resource).
-- Email field and password field (with show/hide toggle).
-- Login button.
+- **Header (row):** app icon on the left; app name and a one-line tagline stacked to its right, all left-aligned. The text block takes the remaining width and wraps for long translations or large fonts (no fixed heights). No big hero illustration. The app name and tagline are string resources; the name is temporary. The icon is a placeholder (it will be the app icon, possibly a lighter variation). Tagline placeholder text: "Keep track of your family's medicines" (to be reviewed later). No "Welcome back" title and no stored user name (it would need a new account field without an MVP use, would only show on devices used before, and would show a name before login).
+- Email field and password field (with show/hide toggle), bordered (outlined) text fields.
+- Login button (pill-shaped, filled).
 - "Forgot password?" link.
-- "or" divider, then "Continue with Google" (follow Google's button branding rules).
-- "Don't have an account? Register" link.
+- "or" divider, then "Continue with Google" (pill-shaped, outlined; follow Google's button branding rules).
+- Register line below the Google button: "Don't have an account? Register" (placeholder text, to be reviewed later).
 
 **Text field settings** (applies to all fields, see Section 5): email field gets the email keyboard, email autofill hint, Next IME action, no autocorrect, no auto-capitalization, and trimmed input. Password field gets the password autofill hint and a Done IME action that submits the form.
 
 **Behavior**
 - Correct credentials with an unverified email go to the verification screen, not an error.
 - Loading: spinner inside the login button. All fields and both sign-in buttons are disabled while a request runs, so a double tap cannot send two requests.
-- Layout: the form scrolls and stays visible when the keyboard opens; it handles large font sizes; on tablets and landscape the form has a maximum width.
+- Layout: the form starts at about 24% of the screen height. About 20dp between the forgot-password row and the Login button. Or may still fine-tune spacing on a real device. The whole screen scrolls (the header scrolls away when the keyboard is open) and stays reachable; it handles large font sizes; on tablets and landscape the form has a maximum width.
 - Same email with both methods: honor the user's choice. No "did you mean Google?" popup. One account per email (see Section 0). Show a clear message if a conflict still happens.
 - Google sign-in user cancel: no error message shown (proposed, not yet confirmed).
 
@@ -276,7 +278,13 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 
 **Previews:** content, loading, and each error state (see Section 4).
 
-**Visual design:** pending.
+**Visual design (decided, with two optional variants)**
+- **Implement option 2:** the row header and the Register line below the Google button, as above.
+- **Optional variant 1:** stacked, centered header (icon, name and tagline centered), form starting at about 28%. Kept in case option 2 does not look good on a real device.
+- **Optional variant 2b:** option 2 with "Register" on the same row as "Forgot password?" (left side) and no separate Register line. Kept in case the separate line feels crowded on a real device. Weakness: two links on one row can wrap or look odd with long translations or large fonts, which is why option 2 is the default.
+- Variants 1 and 2b are decided by Or on a real device later; the agent implements option 2 unless told otherwise.
+- Placeholders to review before release: tagline text, Register text, colors/palette (keep the Material 3 default for now) and the app icon.
+- Visual reference: Or's Design canvas "MediTrack - Login screen options" (boards 1, 2, 2b). It is private to Or; ask Or for screenshots if needed.
 
 ---
 
@@ -290,3 +298,4 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 - MVP vs future split completed for all features. Renamed "intake log" to "History". Optional birth date added (MVP); weight left open; opened/expiry dates, archive, priority, favorites, categories and dose warnings moved to future; app lock set to MVP low priority; client-side encryption of all data added as future research.
 - Added Google sign-in as a second sign-in method (MVP), alongside email/password.
 - Screen design started with the authentication flow. Added Section 10 (screens): general auth flow rules, derived auth state and login screen decisions. Added Firebase project setup prerequisites to Section 0, verified-email requirement for security rules, app lock offer after first login, and the rule that all text fields need correct input settings. Change Log renumbered to Section 11.
+- Login screen finalized (Section 10.2): row header with tagline, bordered fields, pill buttons, Register line below the Google button; two optional variants recorded. Added open decisions for colors, app icon, placeholder texts and the variants.
