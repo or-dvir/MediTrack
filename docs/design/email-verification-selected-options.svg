@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#202343" flood-opacity=".12" />
+    </filter>
+    <style>
+      .ui { font-family: Inter, 'Segoe UI', Arial, sans-serif; fill: #22243a; }
+      .muted { fill: #66697d; }
+      .small { font-size: 13px; }
+      .label { font-size: 14px; font-weight: 700; letter-spacing: .5px; }
+      .title { font-size: 24px; font-weight: 700; }
+      .body { font-size: 15px; }
+      .tiny { font-size: 11px; }
+      .button { font-size: 14px; font-weight: 700; fill: #fff; }
+    </style>
+  </defs>
+  <rect width="1440" height="1760" fill="#f3f3f8" />
+  <text x="72" y="76" class="ui" font-size="32" font-weight="750">Email verification · screen directions</text>
+  <text x="72" y="108" class="ui muted" font-size="16">Selected concepts · option 3 first, option 1 backup · shared auth button language</text>
+  <!-- OPTION 1 -->
+  <g transform="translate(48 148)">
+    <rect width="650" height="740" rx="28" fill="#fff" />
+    <text x="34" y="42" class="ui label" fill="#5964c8">01 · CENTERED REASSURANCE</text>
+    <text x="34" y="66" class="ui small muted">Calm, clear, with one obvious next action</text>
+    <g transform="translate(165 86)">
+      <rect width="320" height="602" rx="38" fill="#191a28" filter="url(#shadow)" />
+      <rect x="9" y="9" width="302" height="584" rx="31" fill="#fbfaff" />
+      <rect x="124" y="15" width="72" height="8" rx="4" fill="#191a28" />
+      <text x="30" y="52" class="ui" font-size="17">‹</text>
+      <circle cx="160" cy="157" r="54" fill="#eeedff" />
+      <rect x="128" y="139" width="64" height="42" rx="8" fill="#fff" stroke="#6268c8" stroke-width="2.5" />
+      <path d="M130 143 L160 166 L190 143" fill="none" stroke="#6268c8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      <text x="160" y="250" text-anchor="middle" class="ui title">Verify your email</text>
+      <text x="160" y="282" text-anchor="middle" class="ui body muted">We sent a verification link to</text>
+      <text x="160" y="307" text-anchor="middle" class="ui body" font-weight="700">alex@example.com</text>
+      <text x="160" y="341" text-anchor="middle" class="ui small muted">Check your inbox or spam folder, then</text>
+      <text x="160" y="360" text-anchor="middle" class="ui small muted">follow the link to verify your address.</text>
+      <rect x="34" y="393" width="252" height="50" rx="25" fill="#5964c8" />
+      <text x="160" y="424" text-anchor="middle" class="ui button">I've verified my email</text>
+      <text x="160" y="478" text-anchor="middle" class="ui small muted">Didn't receive it?</text>
+      <text x="160" y="501" text-anchor="middle" class="ui small" fill="#5964c8" font-weight="700">Resend in 00:42</text>
+      <text x="160" y="568" text-anchor="middle" class="ui tiny muted">Counter appears after the first resend</text>
+    </g>
+  </g>
+  <!-- OPTION 2 -->
+  <!-- OPTION 3 -->
+  <g transform="translate(742 148)">
+    <rect width="650" height="740" rx="28" fill="#fff" />
+    <text x="34" y="42" class="ui label" fill="#5964c8">03 · TWO-STEP GUIDE</text>
+    <text x="34" y="66" class="ui small muted">Makes the handoff to email and back explicit</text>
+    <g transform="translate(165 86)">
+      <rect width="320" height="602" rx="38" fill="#191a28" filter="url(#shadow)" />
+      <rect x="9" y="9" width="302" height="584" rx="31" fill="#fbfaff" />
+      <rect x="124" y="15" width="72" height="8" rx="4" fill="#191a28" />
+      <text x="30" y="52" class="ui" font-size="17">‹</text>
+      <text x="30" y="112" class="ui title">Almost there</text>
+      <text x="30" y="139" class="ui small muted">Verify your address to continue.</text>
+      <rect x="26" y="165" width="268" height="92" rx="17" fill="#eef7f5" />
+      <circle cx="70" cy="211" r="25" fill="#d5eee8" />
+      <rect x="55" y="202" width="30" height="20" rx="4" fill="#fff" stroke="#358b7c" stroke-width="1.6" />
+      <path d="M56 204 L70 214 L84 204" fill="none" stroke="#358b7c" stroke-width="1.6" />
+      <text x="108" y="203" class="ui small" font-weight="700">Link sent to</text>
+      <text x="108" y="225" class="ui small">alex@example.com</text>
+      <path d="M52 286 V374" fill="none" stroke="#c8cbe3" stroke-width="2" stroke-dasharray="4 5" />
+      <circle cx="52" cy="288" r="13" fill="#5964c8" />
+      <text x="52" y="293" text-anchor="middle" class="ui tiny" fill="#fff" font-weight="700">1</text>
+      <text x="78" y="285" class="ui small" font-weight="700">Open your email</text>
+      <text x="78" y="305" class="ui tiny muted">Check inbox or spam and tap the link.</text>
+      <circle cx="52" cy="359" r="13" fill="#5964c8" />
+      <text x="52" y="364" text-anchor="middle" class="ui tiny" fill="#fff" font-weight="700">2</text>
+      <text x="78" y="356" class="ui small" font-weight="700">Come back here</text>
+      <text x="78" y="376" class="ui tiny muted">Then tap the button below.</text>
+      <rect x="34" y="411" width="252" height="50" rx="25" fill="#5964c8" />
+      <text x="160" y="442" text-anchor="middle" class="ui button">I've verified my email</text>
+      <text x="160" y="494" text-anchor="middle" class="ui tiny muted">Didn't get a link? <tspan fill="#5964c8" font-weight="700">Resend in 00:42</tspan></text>
+      <text x="160" y="568" text-anchor="middle" class="ui tiny muted">Inline resend link; count after first resend</text>
+    </g>
+  </g>
+  <!-- OPTION 4 -->
+  <text x="72" y="1718" class="ui small muted">Example address and countdown are runtime values. Resend count is hidden until the first resend.</text>
+  <text x="72" y="930" class="ui small muted">Option 3 is the initial direction. Option 1 is the backup. The email address is supplied at runtime.</text>
+</svg>

@@ -224,6 +224,9 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 | UI screens and navigation flow | In progress: screens are designed one at a time (see Section 10). Login is decided; register, verification and forgot password next, then the flow between the auth screens, then the disclaimer screen last |
 | Flow between the auth screens | To discuss after the individual auth screens are done |
 | Color palette, app icon, tagline and other placeholder texts | Placeholders for now (Material 3 default colors); decide before release |
+| Placeholder resolution | Resolve all design placeholder text and assets before implementation starts. Runtime values (for example, the email address passed to verification) are not unresolved design placeholders. |
+| Cross-screen visual consistency | Before implementation starts, review all screen designs together and align shared UI elements and styling across the app (see Section 5). |
+| Automatic verification refresh | Decide whether to check verification status once when returning to the app, in addition to the manual button; no continuous polling is planned. |
 | Login screen variants (stacked centered header, Register on the forgot-password row) | Option 2 is implemented; decide on a real device whether to switch (Section 10.2) |
 | Auth flow and Firestore security rules | Auth flow in progress (Section 10.1); security rules open |
 | Testing approach | Open |
@@ -250,7 +253,8 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 - **Routing is decided only at app launch and after the result of a sign-in attempt**, not continuously. Otherwise a back press from verification to login would bounce straight back to verification.
 - **Back from verification returns to login** (approved by Or). Firebase may stay signed in; the app derives the next screen itself.
 - Register, forgot password and verification screens have a back button in the top app bar. Login is the root of the flow and has none.
-- Firebase caches the user's verified flag, so the app has to reload the user to see a change. How the verification screen handles this is decided when that screen is designed.
+- The verification screen's back button must match the registration screen; confirm the shared treatment when the registration screen is designed.
+- Firebase is the source of truth for email verification. The app must not store a duplicate verification flag. The current Firebase user object can be stale, so reload it before checking for a change. How the verification screen triggers this refresh is decided in Section 10.3.
 - **Agent must verify, not assume:** (1) calling email/password sign-in while Firebase already has a signed-in user is believed to just replace the session with no special error. This is not confirmed in the docs. (2) Behavior of Google sign-in with an email that already has an email/password account (with "one account per email" on, expect an account-exists-with-different-credential error or automatic linking). Test on the real project and handle it.
 
 ### 10.2 Login screen (decided)
@@ -286,6 +290,33 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 - Placeholders to review before release: tagline text, Register text, colors/palette (keep the Material 3 default for now) and the app icon.
 - Visual reference: Or's Design canvas "MediTrack - Login screen options" (boards 1, 2, 2b). It is private to Or; ask Or for screenshots if needed.
 
+### 10.3 Email verification screen (design direction selected; details in progress)
+**Elements**
+- Top app bar with a back button. Its appearance must match the registration screen and remain consistent with the auth flow; the exact shared treatment is confirmed when registration is finalized.
+- Short instructions explain that a verification link was sent and ask the user to check their inbox or spam folder. Suggested copy: "We sent a verification link to [email]. Check your inbox or spam folder, then follow the link to verify your address." The sentence is placeholder copy to resolve before implementation. `[email]` is a runtime value supplied by the preceding registration flow, not copy to decide later.
+- Primary action: "I've verified my email," using the same filled pill button style as login, registration, and other auth screens. Show loading feedback inside the button while checking.
+- Resend action appears as an inline text link in the selected design. Option 2's outlined secondary button was explored but not selected.
+- Show a sent-email count only after the first resend (the second email sent overall); count successful sends.
+
+**Behavior**
+- The manual primary action reloads the current Firebase user and then reads the refreshed `isEmailVerified` value. Firebase remains the source of truth; do not persist a duplicate app-level flag.
+- If verified, continue to the main app and remove the auth flow from the back stack. A brief success indicator in the primary button (for example, a checkmark) is a possible treatment; whether to show it and for how long remains open.
+- If not verified, keep the user on this screen and show a clear message nudging them to check the email and try again.
+- Resend is disabled during a 60-second cooldown after the initial verification email and after every successful resend. The cooldown must be enforced in the resend logic as well as in the UI, so other triggers cannot bypass it. A Firebase `TOO_MANY_REQUESTS` response must show a meaningful message and disable the affected action with a 60-second countdown; enforce the same guard in logic, not only in the UI.
+- After the cooldown ends, enable resend again. The inline link shows the remaining time while disabled. The sent-email count remains hidden until the first resend.
+- Automatic verification refresh on app return is under consideration (Section 9). If adopted, check once on resume rather than continuously polling, and avoid duplicate concurrent checks. It must not send a verification email.
+- Preview states should include initial cooldown, resend available, checking/loading, unverified response, rate-limit error/cooldown, and verified success.
+
+**Visual design options**
+- **Implement option 3 first: Two-step guide.** Left-aligned "Almost there" heading, a compact card with the runtime email address, and two numbered instructions: open the email and follow the link, then return to the app. Place the filled "I've verified my email" action below. Show resend as an inline text link with the countdown. Keep this as the initial implementation direction.
+- **Backup option 1: Centered reassurance.** Centered email illustration, "Verify your email" heading, short instructions and runtime email, followed by the same filled primary action and inline resend countdown. Keep as an alternative if option 3 does not work well on a real phone; Or may switch to it later.
+- The two options share auth-flow button and back-button styling. Final screen designs must be reviewed together and their shared visual elements aligned before implementation (Section 9).
+- Copy and colors shown in the design exploration are placeholders; resolve them before implementation. The runtime email value is not a placeholder decision.
+
+**Design reference:** Option 3 is the initial direction; option 1 is the backup.
+
+![Email verification screen designs: option 3 first, option 1 backup](design/email-verification-selected-options.svg)
+
 ---
 
 ## 11. Change Log
@@ -299,3 +330,4 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 - Added Google sign-in as a second sign-in method (MVP), alongside email/password.
 - Screen design started with the authentication flow. Added Section 10 (screens): general auth flow rules, derived auth state and login screen decisions. Added Firebase project setup prerequisites to Section 0, verified-email requirement for security rules, app lock offer after first login, and the rule that all text fields need correct input settings. Change Log renumbered to Section 11.
 - Login screen finalized (Section 10.2): row header with tagline, bordered fields, pill buttons, Register line below the Google button; two optional variants recorded. Added open decisions for colors, app icon, placeholder texts and the variants.
+- Email verification screen design direction recorded (Section 10.3): implement option 3 first, retain option 1 as backup; add a pre-implementation review to align shared UI styling across all screens.
