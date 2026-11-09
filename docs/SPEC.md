@@ -84,9 +84,7 @@ General rules:
 - [MVP] Multi-device sync of all data, offline-first. Firestore provides most of this; images in Firebase Storage need their own loading/caching design.
 - [MVP] Disclaimer shown to the user, who must accept it (see 2.9).
 - [MVP] Theme selection: system default, always light, always dark.
-- [MVP] Standard Android splash screen, implemented with AndroidX SplashScreen. Keep it minimal: app icon and theme-matched background, with no separate custom loading screen. It must respect the selected System, Always Light, or Always Dark theme on cold launch without a visible light/dark flash. Final icon and colors are decided with the app icon and palette.
 - [MVP, low priority] App lock (biometric), toggled in settings. Offered to the user after their first login, with a "don't show again" option; always toggleable in settings. Designed together with the settings screen, not the auth screens. If the basic version turns out not to be easy, move it to future.
-- [FUTURE] Optional app-start preference to automatically continue with the previously signed-in account. Do not label this "Remember me": Firebase Authentication already persists Android sessions and does not offer app-configurable native session persistence. This preference would control MediTrack's startup routing only. Decide later whether declining it keeps the Firebase session while showing Login, or signs out completely.
 - [FUTURE] [RESEARCH] Client-side encryption of all data (possibly optional). Note: Firestore already encrypts data at rest and in transit; this would be client-side encryption.
 
 ### 2.6 Images
@@ -168,6 +166,7 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 - Fewest possible taps for frequent actions, especially logging an item as taken.
 - Field-level errors use one shared standard Android text-field error treatment across the app (the shared `TextBoxError` style/component), including the Material error color. Screens must not invent separate error cards or different spacing/colors for the same text-field error; exact component implementation is an implementation detail.
 - **Every text field in the whole app** (not only auth) must have the correct keyboard type, autofill/content-type hint, IME action, and capitalization/autocorrect settings, so password managers and keyboards work properly.
+- Build shared UI components (for example one custom button composable used by every auth screen) instead of restyling per screen. The mockups in `docs/design` come from different design sessions and differ in style; they are references for layout and content only. The implementation uses one consistent style (see Section 9, cross-screen visual consistency).
 
 ---
 
@@ -224,15 +223,16 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 | Priority/highlight design | Open |
 | Official APIs and barcode scanning: which sources exist | Research needed |
 | Regulation (medical-device rules, also for GitHub-only distribution); link-to-official-source idea | Research needed |
-| UI screens and navigation flow | In progress: screens are designed one at a time (see Section 10). Login is decided; registration is in progress elsewhere; verification direction is selected; forgot password is in design review. Discuss auth transitions after the individual auth screens; disclaimer last. |
+| UI screens and navigation flow | In progress: screens are designed one at a time (see Section 10). Login and registration are decided; verification direction is selected; forgot password is in design review. Discuss auth transitions after the individual auth screens; disclaimer last. |
 | Flow between the auth screens | To discuss after the individual auth screens are done |
 | Color palette, app icon, tagline and other placeholder texts | Placeholders for now (Material 3 default colors); decide before release |
 | Placeholder resolution | Resolve all design placeholder text and assets before implementation starts. Runtime values (for example, the email address passed to verification) are not unresolved design placeholders. |
 | Cross-screen visual consistency | Before implementation starts, review all screen designs together and align shared UI elements and styling across the app (see Section 5). |
-| Automatic verification refresh | Decided: while Email verification is visible, reload the Firebase user once when the app returns to the foreground. No polling and no email is sent. |
+| Automatic verification refresh | Decide whether to check verification status once when returning to the app, in addition to the manual button; no continuous polling is planned. |
 | Login screen variants (stacked centered header, Register on the forgot-password row) | Option 2 is implemented; decide on a real device whether to switch (Section 10.2) |
-| Auth flow and Firestore security rules | Auth-flow routing is decided (Section 10.1); security rules open |
-| Testing approach | Open |
+| Shared auth top app bar (small vs center-aligned) | Small is implemented; decide on a real device (Section 10.1) |
+| Auth flow and Firestore security rules | Auth flow in progress (Section 10.1); security rules open |
+| Testing approach | Open. Discuss which tests the implementing agent should write; this is the last discussion before handing off to implementation. |
 | Image loading library | Open |
 | Adopt actual Material 3 Expressive APIs | Open |
 | App name (MediTrack is temporary); package and applicationId depend on it | Open |
@@ -251,16 +251,13 @@ Source: `github.com/or-dvir/agents-config/rules.md`.
 Screens are designed one at a time. Each screen's decisions are recorded here once the screen is final. The disclaimer screen is designed last.
 
 ### 10.1 Authentication flow (general)
-- **Own back stack.** All auth screens form a separate flow. Login is its single root. Returning to Login always pops destinations above that existing Login destination; it must not add another Login destination. Once the user is signed in and verified, no auth screen stays in the back stack or history and the user cannot navigate back to it. The auth flow is shown again only after logout (manual or automatic).
-- **Startup route:** the MVP always opens Login, even if Firebase still has a current user. Do not automatically route to Verification or the app at launch: the user may want a different account. The future app-start preference in Section 2.5 may change this later.
-- **Shared post-auth routing:** after every successful Firebase email/password or Google registration/sign-in result, read the Firebase user's `isEmailVerified` value. If verified, continue to Disclaimer if it has not been accepted, otherwise the main app. If unverified, navigate to Email verification. This is automatic app routing, not a user-facing manual check. Google normally produces a verified Firebase user, but follows this same rule as a precaution.
-- Firebase's "signed in" alone is not enough, because Firebase signs the user in right after email/password registration. The condition for Email verification is "not verified", not "not logged in" or "not registered". Firebase remains the source of truth; the app does not store a duplicate verification flag.
-- **Register to Email verification:** after successful email/password registration, remove Register from the back stack while navigating to Email verification. The resulting stack is Login → Email verification, so its back button returns to Login without creating a cycle. Do not automatically send another verification email when entering this route.
-- **Login to Email verification:** after a successful Login that yields an unverified user, navigate to Email verification with Login underneath. Show a short non-error explanation that the email is not yet verified. Do not automatically resend; the user asks explicitly through Resend.
-- **Forgot password:** sending a reset email changes only the current screen state. Its top back button and "Back to login" action pop the current destination and return to the existing Login; neither adds another Login destination.
+- **Own back stack.** All auth screens form a separate flow. Back works between them (for example, verification back to login). Once the user is signed in and verified, no auth screen stays in the back stack or history and the user cannot navigate back to it. The auth flow is shown again only after logout (manual or automatic).
+- **App-level auth state, derived from Firebase (not stored separately):** signed out (show login), signed in but not verified (show verification), ready = signed in **and** verified (show the app). Google accounts count as verified. Firebase's "signed in" alone is not enough, because Firebase signs the user in right after registration. The condition for showing the verification screen is "not verified", not "not logged in" or "not registered".
+- **Routing is decided only at app launch and after the result of a sign-in attempt**, not continuously. Otherwise a back press from verification to login would bounce straight back to verification.
+- **Back from verification returns to login** (approved by Or). Firebase may stay signed in; the app derives the next screen itself.
 - Register, forgot password and verification screens have a back button in the top app bar. Login is the root of the flow and has none.
-- The verification screen's back button must match the registration screen; confirm the shared treatment when the registration screen is designed.
-- The current Firebase user object can be stale after the user verifies through their email app, so reload it before checking for a change on Email verification (Section 10.3). A reload is not needed immediately after a successful registration/sign-in result; use that fresh Firebase result for shared post-auth routing.
+- **Shared top app bar** (register, verification, forgot password): a Material 3 small top app bar with a standard icon button (no background) for back and the screen title next to it. Implement the small top app bar. Backup: center-aligned top app bar (title centered). The final choice is made when implementing, on a real device. The same component and treatment are used on all three screens, so the verification and forgot-password mockups that show only a back chevron are reference only for this. Whether those screens show their heading in the bar or in the body is decided in the pre-implementation consistency review (Section 9).
+- Firebase is the source of truth for email verification. The app must not store a duplicate verification flag. The current Firebase user object can be stale, so reload it before checking for a change. How the verification screen triggers this refresh is decided in Section 10.3.
 - **Agent must verify, not assume:** (1) calling email/password sign-in while Firebase already has a signed-in user is believed to just replace the session with no special error. This is not confirmed in the docs. (2) Behavior of Google sign-in with an email that already has an email/password account (with "one account per email" on, expect an account-exists-with-different-credential error or automatic linking). Test on the real project and handle it.
 
 ### 10.2 Login screen (decided)
@@ -294,7 +291,9 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 - **Optional variant 2b:** option 2 with "Register" on the same row as "Forgot password?" (left side) and no separate Register line. Kept in case the separate line feels crowded on a real device. Weakness: two links on one row can wrap or look odd with long translations or large fonts, which is why option 2 is the default.
 - Variants 1 and 2b are decided by Or on a real device later; the agent implements option 2 unless told otherwise.
 - Placeholders to review before release: tagline text, Register text, colors/palette (keep the Material 3 default for now) and the app icon.
-- Visual reference: Or's Design canvas "MediTrack - Login screen options" (boards 1, 2, 2b). It is private to Or; ask Or for screenshots if needed.
+- Design reference (option 2 to implement; options 1 and 2b optional):
+
+![Login screen designs: option 2, optional options 1 and 2b](design/login-screen-options.png)
 
 ### 10.3 Email verification screen (design direction selected; details in progress)
 **Elements**
@@ -309,9 +308,9 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 - If verified, continue to the main app and remove the auth flow from the back stack. A brief success indicator in the primary button (for example, a checkmark) is a possible treatment; whether to show it and for how long remains open.
 - If not verified, keep the user on this screen and show a clear message nudging them to check the email and try again.
 - If the Firebase reload/check itself fails, show a meaningful Firebase error state, distinct from the normal "not verified yet" result.
-- Resend is disabled during a 60-second cooldown after the initial verification email and after every successful resend. The cooldown is held only while the app process remains open; after an app restart, leave Resend available and let Firebase enforce its own limit. The cooldown must still be enforced in the resend logic as well as in the UI, so other in-app triggers cannot bypass it. A Firebase `TOO_MANY_REQUESTS` response must show a meaningful message and disable the affected action with a 60-second countdown; enforce the same guard in logic, not only in the UI.
+- Resend is disabled during a 60-second cooldown after the initial verification email and after every successful resend. The cooldown must be enforced in the resend logic as well as in the UI, so other triggers cannot bypass it. A Firebase `TOO_MANY_REQUESTS` response must show a meaningful message and disable the affected action with a 60-second countdown; enforce the same guard in logic, not only in the UI.
 - After the cooldown ends, enable resend again. The inline link shows the remaining time while disabled. The sent-email count remains hidden until the first resend.
-- When Email verification is visible and the app returns to the foreground, reload the Firebase user once and check verification again. Avoid duplicate concurrent checks. If verified, continue automatically; if still unverified, leave the screen unchanged; if this automatic check fails (for example, offline), keep the screen quiet and preserve the manual button for a deliberate retry. It must not send a verification email or bypass the resend cooldown.
+- Automatic verification refresh on app return is under consideration (Section 9). If adopted, check once on resume rather than continuously polling, and avoid duplicate concurrent checks. It must not send a verification email.
 - Preview states should include initial cooldown, resend available, checking/loading, unverified response, Firebase check error, rate-limit error/cooldown, and verified success.
 
 **Visual design options**
@@ -323,6 +322,8 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 **Design reference:** Option 3 is the initial direction; option 1 is the backup.
 
 ![Email verification screen designs: option 3 first, option 1 backup](design/email-verification-selected-options.svg)
+
+**Note:** this mockup is reference only. Its colors, back chevron and general styling differ from the login and register designs. The implementation uses the shared components and one consistent style (Sections 5, 9 and 10.1).
 
 ### 10.4 Forgot-password screen (placeholder design; details in progress)
 **Elements**
@@ -336,7 +337,7 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 
 **Behavior and errors**
 - Send the reset email to the entered address. Once Firebase accepts the send request, remain on the confirmation state and show "Back to login" immediately; do not automatically navigate away or imply the password has already been changed. The user chooses when to return to Login after completing the reset.
-- A 60-second resend cooldown starts after the initial email and after every successful resend. Hold it only while the app process remains open; after an app restart, leave Resend available and let Firebase enforce its own limit. Enforce the active in-app cooldown in the resend logic as well as the UI. A Firebase `TOO_MANY_REQUESTS` response shows a meaningful message and a 60-second countdown on the affected action.
+- A 60-second resend cooldown starts after the initial email and after every successful resend. Enforce it in the resend logic as well as the UI. A Firebase `TOO_MANY_REQUESTS` response shows a meaningful message and a 60-second countdown on the affected action.
 - Show actionable email-related Firebase errors beside the email field using the shared `TextBoxError` treatment from Section 5. Keep the entered address. Request-level failures (for example, offline) get a meaningful screen message. Exact messages are placeholders and should reflect the configured email-enumeration behavior (Section 0).
 - Preview states should include blank email, prefilled email, sending/loading, email-related error, request-level error, sent confirmation with cooldown, and resend available.
 
@@ -344,6 +345,37 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 - The current three-state design (email entry, link sent, email-related error) is a placeholder for discussion. The image, error copy, text-style "Back to login" action, and palette are not final and must be reviewed with the other auth screens before implementation (Section 9).
 
 ![Forgot-password screen placeholder states](design/forgot-password-screen.svg)
+
+**Note:** this mockup is reference only. Its colors, back chevron and general styling differ from the login and register designs. The implementation uses the shared components and one consistent style (Sections 5, 9 and 10.1).
+
+### 10.5 Register screen (decided)
+**Elements**
+- Shared auth top app bar (Section 10.1) with the title "Register"; back returns to login.
+- Email field and password field (with show/hide toggle), bordered like login. Both are single line. Settings follow Section 5: the password field uses the new-password autofill hint so password managers can suggest and save a password; the email field has a Next action and the password field a Done action that submits.
+- Hint under the password field with the minimum length, visible before the user submits (placeholder text: "At least 6 characters"; check Firebase's actual minimum).
+- Register button (pill, filled). Spinner inside the button while loading; fields and button are disabled during a request.
+- Not on this screen: no Google button (login has it and Google sign-in also creates accounts), no confirm-password field (the show/hide toggle and password managers replace it, and the verification screen shows the address the email was sent to so typos get noticed), no "Already have an account?" line (the back button covers it), no app icon or tagline header.
+
+**Behavior**
+- The Register button stays enabled. On tap, validate; if something is invalid, show the shared field error (`TextBoxError`, Section 5) under the field and move focus to the first invalid field. Do not validate while typing.
+- Email: format check using Android's built-in email pattern (checks the shape only; the verification email is the real check). Trim the input.
+- Password: minimum length is the minimum Firebase enforces. This is the Firebase Authentication password policy (a console setting, not a Firestore security rule) and can be raised later. Also check it in the app, so the user gets feedback without a network call.
+- On success Firebase signs the user in, the app sends the verification email and goes to the verification screen (Section 10.3), which receives the email address at runtime.
+
+**Errors**
+- Email already exists: Firebase reports this whatever way the account was created, so the message cannot say which method was used. Placeholder text: "An account with this email already exists. Try logging in." With "one account per email" on (Section 0), nothing breaks.
+- Too many attempts: block the Register button with a visible countdown and show a message (placeholder: "Too many attempts. Try again in a minute."). As far as known, Firebase does not say how long to wait, so use a fixed 60-second countdown. It is client-side and resets if the app restarts. Enforce the guard in logic, not only in the UI. Login gets the same behavior.
+- Other cases (invalid email format, password too short, offline, other Firebase errors) get meaningful messages. All texts are placeholders.
+
+**Previews:** blank, filled, loading, field errors, existing email, too many attempts (blocked button with countdown), and request-level error. The blocked-button state is not drawn in the mockup, so it must have a Compose preview.
+
+**Visual design**
+- Implement the small top app bar: standard back icon button (no background) and the title next to it. The form starts right below it (about 16% of the screen height).
+- Backup: center-aligned top app bar (title centered). The final choice between the two is made when implementing, on a real device, for all three screens that use the shared bar (Section 10.1).
+- Explored and not selected: a tonal circle back button above a separate heading, a plain back arrow with no top app bar, and the medium top app bar.
+- Placeholders: hint and error texts, colors and the app icon.
+
+![Register screen designs: small top app bar, center-aligned backup, error state](design/register-screen-options.png)
 
 ---
 
@@ -360,5 +392,4 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 - Login screen finalized (Section 10.2): row header with tagline, bordered fields, pill buttons, Register line below the Google button; two optional variants recorded. Added open decisions for colors, app icon, placeholder texts and the variants.
 - Email verification screen design direction recorded (Section 10.3): implement option 3 first, retain option 1 as backup; add a pre-implementation review to align shared UI styling across all screens.
 - Forgot-password screen placeholder recorded (Section 10.4): conditional email prefill, reset confirmation and resend cooldown, shared text-field error treatment, and three discussion states.
-- Auth-flow routing clarified: Login remains the root; successful Firebase auth results share verified/unverified routing; verification and password-reset returns pop to the existing Login; app-return verification refresh is one-time and does not send email.
-- Added the MVP Android splash-screen requirement: minimal icon and theme-matched background, respecting the selected theme at cold launch.
+- Register screen finalized (Section 10.5): no Google button, no confirm-password field, field errors, and a blocked button with a countdown for too many attempts. Shared auth top app bar decided (Section 10.1): small top app bar to implement, center-aligned as backup. Login and register designs added as images under docs/design. Added a rule to use shared UI components, with remarks that the verification and forgot-password mockups are reference only. Testing discussion noted as the last step before handing off to implementation.
