@@ -294,7 +294,7 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 - Loading: spinner inside the login button. All fields and both sign-in buttons are disabled while a request runs, so a double tap cannot send two requests.
 - Layout: the form starts at about 24% of the screen height. About 20dp between the forgot-password row and the Login button. Or may still fine-tune spacing on a real device. The whole screen scrolls (the header scrolls away when the keyboard is open) and stays reachable; it handles large font sizes; on tablets and landscape the form has a maximum width.
 - Same email with both methods: honor the user's choice. No "did you mean Google?" popup. One account per email (see Section 0). Show a clear message if a conflict still happens.
-- Google sign-in user cancel: no error message shown (proposed, not yet confirmed).
+- Google sign-in user cancel: no error message shown.
 
 **Errors**
 
@@ -315,7 +315,7 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 
 [![Login screen designs: option 2, optional options 1 and 2b](https://github.com/or-dvir/MediTrack/raw/main/docs/design/login-screen-options.png)](https://github.com/or-dvir/MediTrack/blob/main/docs/design/login-screen-options.png)
 
-### 10.3 Email verification screen (design direction selected; details in progress)
+### 10.3 Email verification screen (decided)
 
 **Elements**
 
@@ -349,7 +349,7 @@ Screens are designed one at a time. Each screen's decisions are recorded here on
 
 **Note:** this mockup uses the shared style in `docs/design/STYLE.md`. Its colors, icons and copy are placeholders (the whole palette is a placeholder). The implementation uses the shared components and one consistent style (Sections 5, 9 and 10.1).
 
-### 10.4 Forgot-password screen (placeholder design; details in progress)
+### 10.4 Forgot-password screen (decided; copy and palette are placeholders)
 
 **Elements**
 
