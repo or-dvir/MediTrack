@@ -15,6 +15,7 @@ All mockups in `docs/design` share this look. **The whole palette (every color b
 - **Text link:** 14/500, primary color, no underline. A disabled link (for example a resend countdown) is muted instead of primary.
 - **Top app bar** (register, verification, forgot password): Material 3 small bar, transparent, 24 of status-bar space above. Standard back icon button (48x48, no background, arrow stroke 2) with the title right next to it. The title is shown in the bar on all three screens. Center-aligned bar is the backup (SPEC Section 10.1).
 - **Icon badges and illustrations:** a tonal container (rounded square radius 20, or circle) with a simple primary-colored line icon (stroke 2). No gradients, no shadows, no decoration. App icon placeholder: 64 rounded square, radius 20. A status overlay on a badge is a small circle in the error or success color with a white check or X.
+- **Dialogs** (only for dialogs, such as the disclaimer Decline dialog): Material 3 `AlertDialog` defaults: scrim over the screen, white surface, 28 radius, 24 padding, title 22/28, body 15 muted, text buttons right-aligned in link style (14/500 primary) with the dismissing action on the left and the confirming action on the right. A checkbox row uses a 20px box, filled with primary when checked.
 - Errors use the error color. Success uses the success color. If a screen needs another accent, add it here first.
 
 ## Presentation

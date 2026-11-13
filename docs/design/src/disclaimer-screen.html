@@ -1,0 +1,45 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Disclaimer screen</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#EBF0F0;font-family:Roboto,system-ui,sans-serif;color:#191C1C;padding:48px}
+h1.page{font-size:26px;font-weight:700}
+.row{display:flex;gap:48px;margin-top:32px;align-items:flex-start}
+.label{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.desc{font-size:13px;color:#4A5757;margin:2px 0 12px}
+.foot{font-size:13px;color:#4A5757;margin-top:32px}
+.board{width:390px;height:844px;border-radius:24px;background:#F6FAFA;box-shadow:0 8px 28px rgba(25,28,28,.12);overflow:hidden}
+.bar{padding:24px 4px 0;height:88px;display:flex;align-items:center;gap:4px}
+.bar button{width:48px;height:48px;border:0;background:none;display:flex;align-items:center;justify-content:center}
+.bar .t{font-size:22px;line-height:28px}
+.body{padding:0 24px}
+.c{text-align:center}
+h2{font-size:28px;line-height:36px;font-weight:500}
+.p{font-size:15px;line-height:22px;color:#4A5757}
+.em{font-size:16px;font-weight:500}
+.btn{display:block;width:100%;height:52px;border:0;border-radius:26px;background:#006A6A;color:#fff;font:500 16px Roboto,system-ui,sans-serif}
+.link{font-size:14px;font-weight:500;color:#006A6A}
+.cd{font-size:14px;font-weight:500;color:#4A5757}
+.m{font-size:14px;color:#4A5757}
+.badge{border-radius:50%;background:#CCE8E7;display:flex;align-items:center;justify-content:center;position:relative}
+.ov{position:absolute;right:-4px;bottom:-4px;width:30px;height:30px;border-radius:50%;border:3px solid #F6FAFA;display:flex;align-items:center;justify-content:center}
+.card{background:#fff;border:1px solid #C4CCCB;border-radius:16px;padding:16px;display:flex;gap:16px;align-items:center}
+.step{display:flex;gap:16px;position:relative}
+.step.first{padding-bottom:28px}
+.step.first::after{content:"";position:absolute;left:13px;top:36px;bottom:6px;border-left:2px dashed #C4CCCB}
+.num{width:28px;height:28px;border-radius:50%;background:#006A6A;color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex:none}
+.st{font-size:15px;font-weight:500;line-height:22px}
+.ss{font-size:12px;color:#4A5757;margin-top:2px}
+.field{background:#fff;border:1px solid #6F7979;border-radius:12px;height:60px;padding:8px 16px;display:flex;flex-direction:column;justify-content:center}
+.field.err{border:2px solid #B3261C;padding:7px 15px}
+.field .l{font-size:12px;color:#4A5757}
+.field.err .l{color:#B3261C}
+.field .v{font-size:16px;padding-top:2px}
+.help{font-size:12px;color:#B3261C;padding:4px 16px 0}
+
+.scroll{height:430px;overflow:hidden;position:relative}
+.bar-lite{padding:24px 24px 0;height:88px;display:flex;align-items:center}
+.sec{font-size:15px;line-height:24px;color:#191C1C}
+.link{text-align:center}
+</style></head><body><h1 class="page">Disclaimer screen</h1><div class="row"><div><div class="label">01 · Disclaimer</div><div class="desc">Root screen after verification; no back; Decline opens a dialog (not drawn)</div><div class="board"><div class="bar"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#191C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8.2-8 9-4.8-.8-8-4.5-8-9V6l8-3z"/><path d="M12 8v5M12 16.5v.5"/></svg></div><div class="t">Before you start</div></div>
+<div class="body" style="display:flex;flex-direction:column;height:calc(844px - 88px)">
+<div class="sec" style="margin-top:16px;flex:1;overflow:hidden">MediTrack is an open-source app that helps you organize medicines and doses. It is not medical advice. Always check medicine information, doses and timing with your doctor or pharmacist and the product label. The author of this app is not responsible for decisions made using it, or for modified or unofficial copies. Only use copies from the official source: [repo link].</div>
+<div style="padding:16px 0 32px"><button type="button" class="btn">I understand and accept</button><div class="link" style="margin-top:20px">Decline</div></div></div></div></div></div><div class="foot">Placeholders: copy, icon, colors. The disclaimer text must be reviewed before release (open-source wording, official source link). The text scrolls; the buttons stay pinned.</div></body></html>
