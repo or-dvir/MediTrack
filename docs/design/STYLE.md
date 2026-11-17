@@ -16,6 +16,9 @@ All mockups in `docs/design` share this look. **The whole palette (every color b
 - **Top app bar** (register, verification, forgot password): Material 3 small bar, transparent, 24 of status-bar space above. Standard back icon button (48x48, no background, arrow stroke 2) with the title right next to it. The title is shown in the bar on all three screens. Center-aligned bar is the backup (SPEC Section 10.1).
 - **Icon badges and illustrations:** a tonal container (rounded square radius 20, or circle) with a simple primary-colored line icon (stroke 2). No gradients, no shadows, no decoration. App icon placeholder: 64 rounded square, radius 20. A status overlay on a badge is a small circle in the error or success color with a white check or X.
 - **Dialogs** (only for dialogs, such as the disclaimer Decline dialog): Material 3 `AlertDialog` defaults: scrim over the screen, white surface, 28 radius, 24 padding, title 22/28, body 15 muted, text buttons right-aligned in link style (14/500 primary) with the dismissing action on the left and the confirming action on the right. A checkbox row uses a 20px box, filled with primary when checked.
+- **Disabled button:** Material 3 defaults (12% container, 38% content).
+- **Destructive actions:** the normal primary button (no red button). A confirmation uses a checkbox with a warning icon (error color) and keeps the button disabled until the box is checked. The secondary action (Cancel, Sign out) is an outlined button.
+- **Step cards** (progress): white card, 1px divider border, radius 16, tonal icon badge 40, title 16/500, detail 13 muted (error color when incomplete), status icon 28 on the right: Deleted (primary fill, white check), running (spinner), Pending (empty circle, 2px divider border), Incomplete (error fill, white X).
 - Errors use the error color. Success uses the success color. If a screen needs another accent, add it here first.
 
 ## Presentation

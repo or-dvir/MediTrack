@@ -1,0 +1,71 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Account deletion · confirm and reauthentication</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#EBF0F0;font-family:Roboto,system-ui,sans-serif;color:#191C1C;padding:48px}
+h1.page{font-size:26px;font-weight:700}
+.row{display:flex;gap:48px;margin-top:32px;align-items:flex-start}
+.label{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.desc{font-size:13px;color:#4A5757;margin:2px 0 12px}
+.foot{font-size:13px;color:#4A5757;margin-top:32px}
+.board{width:390px;height:844px;border-radius:24px;background:#F6FAFA;box-shadow:0 8px 28px rgba(25,28,28,.12);overflow:hidden}
+.bar{padding:24px 4px 0;height:88px;display:flex;align-items:center;gap:4px}
+.bar button{width:48px;height:48px;border:0;background:none;display:flex;align-items:center;justify-content:center}
+.bar .t{font-size:22px;line-height:28px}
+.body{padding:0 24px}
+.c{text-align:center}
+h2{font-size:28px;line-height:36px;font-weight:500}
+.p{font-size:15px;line-height:22px;color:#4A5757}
+.em{font-size:16px;font-weight:500}
+.btn{display:block;width:100%;height:52px;border:0;border-radius:26px;background:#006A6A;color:#fff;font:500 16px Roboto,system-ui,sans-serif}
+.link{font-size:14px;font-weight:500;color:#006A6A}
+.cd{font-size:14px;font-weight:500;color:#4A5757}
+.m{font-size:14px;color:#4A5757}
+.badge{border-radius:50%;background:#CCE8E7;display:flex;align-items:center;justify-content:center;position:relative}
+.ov{position:absolute;right:-4px;bottom:-4px;width:30px;height:30px;border-radius:50%;border:3px solid #F6FAFA;display:flex;align-items:center;justify-content:center}
+.card{background:#fff;border:1px solid #C4CCCB;border-radius:16px;padding:16px;display:flex;gap:16px;align-items:center}
+.step{display:flex;gap:16px;position:relative}
+.step.first{padding-bottom:28px}
+.step.first::after{content:"";position:absolute;left:13px;top:36px;bottom:6px;border-left:2px dashed #C4CCCB}
+.num{width:28px;height:28px;border-radius:50%;background:#006A6A;color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex:none}
+.st{font-size:15px;font-weight:500;line-height:22px}
+.ss{font-size:12px;color:#4A5757;margin-top:2px}
+.field{background:#fff;border:1px solid #6F7979;border-radius:12px;height:60px;padding:8px 16px;display:flex;flex-direction:column;justify-content:center}
+.field.err{border:2px solid #B3261C;padding:7px 15px}
+.field .l{font-size:12px;color:#4A5757}
+.field.err .l{color:#B3261C}
+.field .v{font-size:16px;padding-top:2px}
+.help{font-size:12px;color:#B3261C;padding:4px 16px 0}
+
+.scroll{height:430px;overflow:hidden;position:relative}
+.bar-lite{padding:24px 24px 0;height:88px;display:flex;align-items:center}
+.sec{font-size:15px;line-height:24px;color:#191C1C}
+.link{text-align:center}
+
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;padding:0 32px}
+.dlg{background:#fff;border-radius:28px;padding:24px;width:100%}
+.dlg .dt{font-size:22px;line-height:28px;color:#191C1C}
+.dlg .db{font-size:15px;line-height:22px;color:#4A5757;margin-top:16px}
+.cb{display:flex;align-items:center;gap:12px;margin-top:20px}
+.box{width:20px;height:20px;border-radius:3px;border:2px solid #6F7979;display:flex;align-items:center;justify-content:center;flex:none}
+.box.on{background:#006A6A;border-color:#006A6A}
+.cbl{font-size:15px;line-height:22px;color:#191C1C}
+.acts{display:flex;justify-content:flex-end;gap:24px;margin-top:24px}
+
+.xr{display:flex;align-items:center;gap:16px;padding:12px 0}
+.xt{font-size:16px;font-weight:500;line-height:22px}
+.xs{font-size:12px;color:#4A5757;margin-top:2px}
+.xb{background:#CCE8E7;border-radius:12px;padding:12px 16px;font-size:14px;line-height:20px;color:#191C1C;margin-top:16px}
+.xw{border:1px solid #B3261C;color:#B3261C;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:500;margin-top:20px;display:flex;gap:12px;align-items:center}
+.xc{background:#fff;border:1px solid #C4CCCB;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-top:12px}
+.xbadge{width:40px;height:40px;border-radius:50%;background:#CCE8E7;display:flex;align-items:center;justify-content:center;flex:none}
+.col{display:flex;flex-direction:column;height:calc(844px - 88px)}
+.btn.err{background:#B3261C}
+.btn.out{background:#fff;color:#191C1C;border:1px solid #6F7979}
+.seg{display:flex;gap:8px;margin-top:32px}.seg div{flex:1;height:8px;border-radius:4px}
+.board{position:relative}
+.btn.sec{background:#fff;color:#191C1C;border:1px solid #6F7979}
+.btn.dis{background:rgba(25,28,28,.12);color:rgba(25,28,28,.38)}
+.xcb{border:1px solid #C4CCCB;border-radius:12px;padding:14px 16px;display:flex;gap:14px;align-items:center;margin-top:20px;background:#fff}
+.xcb .tx{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:22px;color:#191C1C}
+.bx{width:22px;height:22px;border-radius:3px;border:2px solid #6F7979;display:flex;align-items:center;justify-content:center;flex:none}
+.bx.on{background:#006A6A;border-color:#006A6A}
+.board{position:relative}</style></head><body><h1 class="page">Account deletion · confirm and reauthentication</h1><div class="row"><div><div class="label">01 · Confirm</div><div class="desc">Button disabled until the box is checked</div><div class="board"><div class="bar"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#191C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg></div><div class="t">Delete account</div></div><div class="body col"><div class="p" style="margin-top:24px;color:#191C1C">You are about to delete alex@example.com and all its data.</div><div class="xcb"><div class="bx"></div><div class="tx"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B3261C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18v.5"/></svg><div>I understand this is not reversible.</div></div></div><div style="margin-top:auto;padding:16px 0 32px"><button type="button" class="btn dis">Delete my account</button><button type="button" class="btn sec" style="margin-top:12px">Cancel</button></div></div></div></div><div><div class="label">02 · Confirm, checked</div><div class="desc">Delete my account enabled</div><div class="board"><div class="bar"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#191C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg></div><div class="t">Delete account</div></div><div class="body col"><div class="p" style="margin-top:24px;color:#191C1C">You are about to delete alex@example.com and all its data.</div><div class="xcb"><div class="bx on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></div><div class="tx"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B3261C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18v.5"/></svg><div>I understand this is not reversible.</div></div></div><div style="margin-top:auto;padding:16px 0 32px"><button type="button" class="btn">Delete my account</button><button type="button" class="btn sec" style="margin-top:12px">Cancel</button></div></div></div></div><div><div class="label">03 · Reauthentication: password</div><div class="desc">Before the first step; account is named</div><div class="board"><div class="bar"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#191C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg></div><div class="t">Delete account</div></div><div class="body col"><div class="p" style="margin-top:24px;color:#191C1C">You are about to delete alex@example.com and all its data.</div><div class="xcb"><div class="bx on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></div><div class="tx"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B3261C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18v.5"/></svg><div>I understand this is not reversible.</div></div></div><div style="margin-top:auto;padding:16px 0 32px"><button type="button" class="btn">Delete my account</button><button type="button" class="btn sec" style="margin-top:12px">Cancel</button></div></div><div class="scrim"><div class="dlg"><div class="db" style="margin-top:0;color:#191C1C">To delete alex@example.com, enter its password.</div><div class="field" style="margin-top:20px;flex-direction:row;align-items:center;justify-content:space-between"><div><div class="l">Password</div><div class="v">••••••••</div></div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4A5757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/></svg></div><div class="acts"><span class="link">Cancel</span><span class="link">Continue</span></div></div></div></div></div><div><div class="label">04 · Reauthentication: Google</div><div class="desc">Only the methods the account has</div><div class="board"><div class="bar"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#191C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg></div><div class="t">Delete account</div></div><div class="body col"><div class="p" style="margin-top:24px;color:#191C1C">You are about to delete alex@example.com and all its data.</div><div class="xcb"><div class="bx on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></div><div class="tx"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B3261C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18v.5"/></svg><div>I understand this is not reversible.</div></div></div><div style="margin-top:auto;padding:16px 0 32px"><button type="button" class="btn">Delete my account</button><button type="button" class="btn sec" style="margin-top:12px">Cancel</button></div></div><div class="scrim"><div class="dlg"><div class="db" style="margin-top:0;color:#191C1C">To delete alex@example.com, sign in with Google again.</div><button type="button" class="btn sec" style="margin-top:20px"><span style="width:20px;height:20px;border-radius:50%;border:1.5px solid #4A5757;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-right:12px">G</span>Continue with Google</button><div class="acts"><span class="link">Cancel</span></div></div></div></div></div></div><div class="foot">Placeholders: all copy, icons, colors. The Google logo is a placeholder; use Google official assets and branding rules. Continue only confirms identity; the deletion starts from the confirm screen.</div></body></html>
